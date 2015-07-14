@@ -172,8 +172,16 @@ typedef NS_ENUM(NSUInteger, RefreshViewPosition) {
     if(self.bottomPullTriggered && !self.scrollView.dragging && scrollView.decelerating)
     {
         self.waitEnd = YES;
-        scrollView.contentInset = UIEdgeInsetsMake(0, 0, TOPVIEW_HEIGHT, 0  );
-        scrollView.contentOffset = CGPointMake(0, TOPVIEW_HEIGHT);
+        CGFloat bottom;
+        if(self.scrollView.contentSize.height < CGRectGetHeight(self.scrollView.bounds))
+        {
+            bottom = TOPVIEW_HEIGHT;
+        }
+        else
+        {
+            bottom = self.scrollView.contentSize.height - CGRectGetHeight(self.scrollView.bounds) + TOPVIEW_HEIGHT;
+        }
+        scrollView.contentOffset = CGPointMake(0, bottom);
         
         return;
     }
