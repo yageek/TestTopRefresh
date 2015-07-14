@@ -30,6 +30,8 @@ typedef NS_ENUM(NSUInteger, RefreshViewPosition) {
 @property(nonatomic, assign) id target;
 @property(nonatomic) SEL selector;
 
+@property(nonatomic) BOOL waitEnd;
+
 @property(nonatomic) RefreshViewPosition position;
 
 - (id) initWithFrame:(CGRect)frame andPosition:(RefreshViewPosition) position;
@@ -148,6 +150,7 @@ typedef NS_ENUM(NSUInteger, RefreshViewPosition) {
     self.scrollView.contentInset = UIEdgeInsetsZero;
     self.topPullTriggered = NO;
     self.bottomPullTriggered = NO;
+    self.waitEnd = NO;
 }
 
 
@@ -159,6 +162,7 @@ typedef NS_ENUM(NSUInteger, RefreshViewPosition) {
     
     if(self.topPullTriggered && !self.scrollView.dragging && scrollView.decelerating)
     {
+        self.waitEnd = YES;
         scrollView.contentInset = UIEdgeInsetsMake(TOPVIEW_HEIGHT, 0, 0, 0  );
         scrollView.contentOffset = CGPointMake(0, -TOPVIEW_HEIGHT);
         
@@ -167,6 +171,7 @@ typedef NS_ENUM(NSUInteger, RefreshViewPosition) {
     
     if(self.bottomPullTriggered && !self.scrollView.dragging && scrollView.decelerating)
     {
+        self.waitEnd = YES;
         scrollView.contentInset = UIEdgeInsetsMake(0, 0, TOPVIEW_HEIGHT, 0  );
         scrollView.contentOffset = CGPointMake(0, TOPVIEW_HEIGHT);
         
@@ -187,9 +192,7 @@ typedef NS_ENUM(NSUInteger, RefreshViewPosition) {
     }
     
     CGFloat yPosition = MAX(self.scrollView.contentSize.height, CGRectGetHeight(self.scrollView.bounds));
-    CGFloat height = yPosition - CGRectGetHeight(self.scrollView.bounds) + ABS(yOffset);
-    NSLog(@"Height:%f", height);
-    if (height >= TOPVIEW_HEIGHT && !self.scrollView.dragging && !self.bottomPullTriggered && self.position == RefreshViewPositionBottom)
+    if (yOffset + CGRectGetHeight(self.scrollView.bounds) >= yPosition + TOPVIEW_HEIGHT && !self.scrollView.dragging && !self.bottomPullTriggered && self.position == RefreshViewPositionBottom && !self.waitEnd)
     {
         NSLog(@"Scroll bottom");
         self.bottomPullTriggered = YES;
